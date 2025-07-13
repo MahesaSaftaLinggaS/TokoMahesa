@@ -8,42 +8,48 @@ use App\Models\Expense;
 
 class DashboardController extends Controller
 {
-    public function index()
-    {
-        $productCount = Product::count();
+  public function index()
+{
+    // Ambil semua produk
+    $products = Product::all();
 
-        $monthlyExpense = Expense::whereMonth('date', now()->month)
-            ->whereYear('date', now()->year)
-            ->sum('amount');
+    // Statistik utama
+    $productCount = $products->count();
 
-        $recentExpenses = Expense::latest()->take(5)->get();
+    $monthlyExpense = Expense::whereMonth('date', now()->month)
+        ->whereYear('date', now()->year)
+        ->sum('amount');
 
-        // Statistik tambahan
-        $lowStockProducts = Product::where('stock', '<=', 5)->get();
-        $mostStockProduct = Product::orderByDesc('stock')->first();
-        $highestExpense = Expense::orderByDesc('amount')->first();
+    $recentExpenses = Expense::latest()->take(5)->get();
 
-        // Data untuk Chart.js (pengeluaran per bulan)
-        $expensesRaw = Expense::selectRaw('MONTH(date) as month, SUM(amount) as total')
-            ->groupBy('month')
-            ->orderBy('month')
-            ->get();
+    // Statistik tambahan
+    $lowStockProducts = $products->where('stock', '<=', 5);
+    $mostStockProduct = $products->sortByDesc('stock')->first();
+    $highestExpense = Expense::orderByDesc('amount')->first();
 
-        $expenseLabels = $expensesRaw->pluck('month')->map(function ($m) {
-            return date('F', mktime(0, 0, 0, $m, 1));
-        });
+    // Data untuk Chart.js (pengeluaran per bulan)
+    $expensesRaw = Expense::selectRaw('MONTH(date) as month, SUM(amount) as total')
+        ->groupBy('month')
+        ->orderBy('month')
+        ->get();
 
-        $expenseData = $expensesRaw->pluck('total');
+    $expenseLabels = $expensesRaw->pluck('month')->map(function ($m) {
+        return date('F', mktime(0, 0, 0, $m, 1));
+    });
 
-        return view('dashboard', compact(
-            'productCount',
-            'monthlyExpense',
-            'recentExpenses',
-            'lowStockProducts',
-            'mostStockProduct',
-            'highestExpense',
-            'expenseLabels',
-            'expenseData'
-        ));
-    }
+    $expenseData = $expensesRaw->pluck('total');
+
+    return view('dashboard', [
+        'productCount' => $productCount,
+        'monthlyExpense' => $monthlyExpense,
+        'mostStockProduct' => $mostStockProduct,
+        'highestExpense' => $highestExpense,
+        'lowStockProducts' => $lowStockProducts,
+        'recentExpenses' => $recentExpenses,
+        'expenseLabels' => $expenseLabels,
+        'expenseData' => $expenseData,
+        'products' => $products,
+    ]);
+}
+
 }

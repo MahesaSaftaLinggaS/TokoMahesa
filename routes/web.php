@@ -5,6 +5,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\OrderController;
 
 Route::middleware(['auth'])->group(function () {
     // Dashboard dari controller
@@ -22,3 +23,6 @@ Route::middleware(['auth'])->group(function () {
 
 // Auth routes dari Laravel Breeze
 require __DIR__.'/auth.php';
+
+//order
+Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');

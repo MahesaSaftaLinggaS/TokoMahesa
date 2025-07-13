@@ -7,12 +7,24 @@ use Illuminate\Http\Request;
 
 class ExpenseController extends Controller
 {
-    public function index()
-    {
-        $expenses = Expense::latest()->get();
-        $total = $expenses->sum('amount');
-        return view('expenses.index', compact('expenses', 'total'));
+    public function index(Request $request)
+{
+    $query = Expense::query();
+
+    if ($request->month) {
+        $query->whereMonth('date', $request->month);
     }
+
+    if ($request->year) {
+        $query->whereYear('date', $request->year);
+    }
+
+    $expenses = $query->latest()->get();
+    $total = $expenses->sum('amount');
+
+    return view('expenses.index', compact('expenses', 'total'));
+}
+
 
     public function create()
     {
@@ -39,20 +51,20 @@ class ExpenseController extends Controller
 
     public function update(Request $request, Expense $expense)
     {
-        $request->validate([
+        $validated = $request->validate([
             'date' => 'required|date',
             'amount' => 'required|numeric',
             'description' => 'nullable|string',
         ]);
 
-        $expense->update($request->all());
+        $expense->update($validated);
 
-        return redirect()->route('expenses.index')->with('success', 'Pengeluaran diperbarui.');
+        return redirect()->route('expenses.index')->with('success', 'Pengeluaran berhasil diperbarui.');
     }
 
     public function destroy(Expense $expense)
     {
         $expense->delete();
-        return redirect()->route('expenses.index')->with('success', 'Pengeluaran dihapus.');
+        return redirect()->route('expenses.index')->with('success', 'Pengeluaran berhasil dihapus.');
     }
 }
