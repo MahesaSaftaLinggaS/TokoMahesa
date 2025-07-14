@@ -1,54 +1,74 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="text-xl font-bold">Daftar Pengeluaran</h2>
+        <h2 class="text-2xl font-bold text-gray-800">📋 Daftar Pengeluaran</h2>
     </x-slot>
 
-    <form method="GET" action="{{ route('expenses.index') }}" class="mb-4 flex gap-2">
-    <select name="month" class="border px-2 py-1 rounded">
-        <option value="">Bulan</option>
-        @for($m = 1; $m <= 12; $m++)
-            <option value="{{ $m }}" {{ request('month') == $m ? 'selected' : '' }}>
-                {{ DateTime::createFromFormat('!m', $m)->format('F') }}
-            </option>
-        @endfor
-    </select>
-    <input type="number" name="year" value="{{ request('year') }}" placeholder="Tahun" class="border px-2 py-1 rounded w-24">
-    <button type="submit" class="px-3 py-1 bg-blue-500 text-white rounded">Filter</button>
-</form>
+    <!-- Filter Form -->
+    <form method="GET" action="{{ route('expenses.index') }}" class="mb-6">
+        <div class="flex flex-col sm:flex-row gap-2">
+            <select name="month"
+                    class="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-200">
+                <option value="">Bulan</option>
+                @for($m = 1; $m <= 12; $m++)
+                    <option value="{{ $m }}" {{ request('month') == $m ? 'selected' : '' }}>
+                        {{ DateTime::createFromFormat('!m', $m)->format('F') }}
+                    </option>
+                @endfor
+            </select>
 
+            <input type="number" name="year" value="{{ request('year') }}" placeholder="Tahun"
+                   class="px-3 py-2 border border-gray-300 rounded-md shadow-sm w-full sm:w-28 focus:ring focus:ring-blue-200">
 
-    <div class="py-4">
-        <a href="{{ route('expenses.create') }}" class="bg-blue-500 text-white px-4 py-2 rounded">+ Tambah Pengeluaran</a>
+            <button type="submit"
+                    class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
+                🔎 Filter
+            </button>
+        </div>
+    </form>
 
-        <p class="mt-4 font-semibold">Total: Rp {{ number_format($total) }}</p>
+    <!-- Tambah Pengeluaran Button -->
+    <div class="flex justify-between items-center mb-4">
+        <a href="{{ route('expenses.create') }}"
+           class="bg-green-600 text-white px-5 py-2 rounded-md hover:bg-green-700 transition duration-200">
+            ➕ Tambah Pengeluaran
+        </a>
+        <p class="text-lg font-semibold text-gray-700">Total: <span class="text-green-700">Rp {{ number_format($total) }}</span></p>
+    </div>
 
-        <table class="mt-2 w-full text-sm text-left">
-            <thead>
+    <!-- Table Container -->
+    <div class="overflow-x-auto shadow-sm rounded-lg border">
+        <table class="min-w-full text-sm text-left divide-y divide-gray-200">
+            <thead class="bg-gray-100">
                 <tr>
-                    <th>Tanggal</th>
-                    <th>Nominal</th>
-                    <th>Deskripsi</th>
-                    <th>Aksi</th>
+                    <th class="px-4 py-3 font-medium text-gray-700">Tanggal</th>
+                    <th class="px-4 py-3 font-medium text-gray-700">Nominal</th>
+                    <th class="px-4 py-3 font-medium text-gray-700">Deskripsi</th>
+                    <th class="px-4 py-3 font-medium text-gray-700">Aksi</th>
                 </tr>
             </thead>
-           <tbody>
-    @foreach ($expenses as $e)
-        <tr class="border-b">
-            <td class="py-2">{{ $e->date }}</td>
-            <td class="py-2">Rp {{ number_format($e->amount) }}</td>
-            <td class="py-2">{{ $e->description }}</td>
-            <td class="py-2 space-x-2">
-                <a href="{{ route('expenses.edit', $e->id) }}" class="text-blue-500 hover:underline">Edit</a>
-                <form action="{{ route('expenses.destroy', $e->id) }}" method="POST" class="inline" onsubmit="return confirm('Yakin ingin hapus pengeluaran ini?')">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="text-red-500 hover:underline">Hapus</button>
-                </form>
-            </td>
-        </tr>
-    @endforeach
-</tbody>
-
+            <tbody class="bg-white">
+                @forelse ($expenses as $e)
+                <tr class="border-t hover:bg-gray-50 transition">
+                    <td class="px-4 py-3">{{ $e->date }}</td>
+                    <td class="px-4 py-3">Rp {{ number_format($e->amount) }}</td>
+                    <td class="px-4 py-3">{{ $e->description }}</td>
+                    <td class="px-4 py-3 space-x-2 flex">
+                        <a href="{{ route('expenses.edit', $e->id) }}"
+                           class="text-blue-500 hover:underline">Edit</a>
+                        <form action="{{ route('expenses.destroy', $e->id) }}" method="POST"
+                              onsubmit="return confirm('Yakin ingin hapus pengeluaran ini?')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="text-red-500 hover:underline">Hapus</button>
+                        </form>
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="4" class="px-4 py-3 text-center text-gray-500">Belum ada pengeluaran yang ditemukan.</td>
+                </tr>
+                @endforelse
+            </tbody>
         </table>
     </div>
 </x-app-layout>

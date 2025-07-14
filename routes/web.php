@@ -26,3 +26,9 @@ require __DIR__.'/auth.php';
 
 //order
 Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
+Route::get('/orders/summary', [OrderController::class, 'summary'])->name('orders.summary');
+
+//chart
+Route::get('/charts', [DashboardController::class, 'charts'])->name('charts');
+
+

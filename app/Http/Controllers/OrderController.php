@@ -33,6 +33,12 @@ class OrderController extends Controller
 
         return back()->with('success', 'Pesanan berhasil dibuat.');
     }
+
+    public function summary()
+    {
+        $orders = Order::with('product')->orderBy('created_at', 'desc')->get();
+        return view('orders.summary', compact('orders'));
+    }
 }
 
 

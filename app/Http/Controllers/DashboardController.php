@@ -52,4 +52,29 @@ class DashboardController extends Controller
     ]);
 }
 
+public function charts()
+{
+    // Pengeluaran per hari
+    $expensesRaw = Expense::selectRaw('DATE(date) as day, SUM(amount) as total')
+        ->groupBy('day')
+        ->orderBy('day')
+        ->get();
+
+    $expenseLabels = $expensesRaw->pluck('day')->map(function ($date) {
+        return \Carbon\Carbon::parse($date)->format('d M Y'); // contoh: 13 Jul 2025
+    });
+
+    $expenseData = $expensesRaw->pluck('total');
+
+    $products = Product::select('name', 'stock')->get();
+
+    return view('charts', [
+        'expenseLabels' => $expenseLabels,
+        'expenseData' => $expenseData,
+        'products' => $products,
+    ]);
+}
+
+
+
 }
