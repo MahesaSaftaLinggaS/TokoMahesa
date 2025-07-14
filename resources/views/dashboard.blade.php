@@ -73,7 +73,7 @@
                     <!-- Badge -->
                     @if($product->stock > 10)
                         <span class="absolute top-2 right-2 bg-yellow-400 text-xs px-2 py-1 rounded-full font-bold text-white shadow">
-                            🌟 Terlaris d
+                            🌟 Terlaris 
                         </span>
                     @endif
                 </div>
