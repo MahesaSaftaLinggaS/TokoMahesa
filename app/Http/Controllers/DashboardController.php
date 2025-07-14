@@ -52,19 +52,29 @@ class DashboardController extends Controller
     ]);
 }
 
-public function charts()
+public function charts(\Illuminate\Http\Request $request)
 {
-    // Pengeluaran per hari
-    $expensesRaw = Expense::selectRaw('DATE(date) as day, SUM(amount) as total')
-        ->groupBy('day')
-        ->orderBy('day')
+    $year = $request->query('year', now()->year);
+
+    // Pengeluaran per bulan untuk tahun yang dipilih
+    $expensesRaw = Expense::selectRaw('MONTH(date) as month, SUM(amount) as total')
+        ->whereYear('date', $year)
+        ->groupBy('month')
+        ->orderBy('month')
         ->get();
 
-    $expenseLabels = $expensesRaw->pluck('day')->map(function ($date) {
-        return \Carbon\Carbon::parse($date)->format('d M Y'); // contoh: 13 Jul 2025
+    // Initialize all months with zero
+    $allMonths = collect(range(1, 12));
+    $expenseDataByMonth = $allMonths->mapWithKeys(function ($month) use ($expensesRaw) {
+        $found = $expensesRaw->firstWhere('month', $month);
+        return [$month => $found ? $found->total : 0];
     });
 
-    $expenseData = $expensesRaw->pluck('total');
+    $expenseLabels = $expenseDataByMonth->keys()->map(function ($m) {
+        return date('F', mktime(0, 0, 0, $m, 1));
+    });
+
+    $expenseData = $expenseDataByMonth->values();
 
     $products = Product::select('name', 'stock')->get();
 
@@ -72,6 +82,7 @@ public function charts()
         'expenseLabels' => $expenseLabels,
         'expenseData' => $expenseData,
         'products' => $products,
+        'selectedYear' => $year,
     ]);
 }
 

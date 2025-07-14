@@ -4,9 +4,26 @@
     </x-slot>
 
     <div class="py-8 px-4 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Filter Tahun -->
+        <div class="bg-white rounded-2xl p-6 shadow mb-6 col-span-full">
+            <form method="GET" action="{{ route('charts') }}" class="flex items-center space-x-4">
+                <label for="year" class="font-semibold text-gray-700">Filter Tahun:</label>
+                <select name="year" id="year" class="border border-gray-300 rounded px-3 py-1" onchange="this.form.submit()">
+                    @php
+                        $currentYear = now()->year;
+                        $startYear = $currentYear - 5; // show last 5 years
+                    @endphp
+                    @for ($y = $startYear; $y <= $currentYear; $y++)
+                        <option value="{{ $y }}" @if(isset($selectedYear) && $selectedYear == $y) selected @endif>{{ $y }}</option>
+                    @endfor
+                </select>
+                <noscript><button type="submit" class="ml-2 px-4 py-1 bg-blue-600 text-white rounded">Apply</button></noscript>
+            </form>
+        </div>
+
         <!-- Grafik Pengeluaran -->
         <div class="bg-white rounded-2xl p-6 shadow">
-            <h3 class="text-lg font-bold mb-4 text-gray-700">📉 Pengeluaran per Bulan</h3>
+            <h3 class="text-lg font-bold mb-4 text-gray-700">📉 Pengeluaran per Bulan - Tahun {{ $selectedYear ?? now()->year }}</h3>
             <canvas id="expenseChart" height="200"></canvas>
         </div>
 
@@ -42,9 +59,9 @@
                 scales: {
                     y: {
                         beginAtZero: true,
-                        ticks: {
-                            callback: value => 'Rp ' + value.toLocaleString()
-                        }
+ticks: {
+    callback: function(value) { return 'Rp ' + value.toLocaleString(); }
+}
                     }
                 }
             }

@@ -8,14 +8,12 @@
                         ['label' => '🛒 Daftar Produk', 'route' => 'products.index', 'color' => 'blue'],
                         ['label' => '➕ Tambah Produk', 'route' => 'products.create', 'color' => 'blue'],
                         ['label' => '💸 Daftar Pengeluaran', 'route' => 'expenses.index', 'color' => 'green'],
-                        ['label' => '➕ Tambah Pengeluaran', 'route' => 'expenses.create', 'color' => 'green'],
+                        ['label' => '📊 Lihat Grafik', 'route' => 'charts', 'color' => 'green'],
                         ['label' => '📊 Ringkasan Pesanan', 'route' => 'orders.summary', 'color' => 'indigo'],
                     ];
                 @endphp
 
-                <a href="{{ route('charts') }}" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white text-xs rounded font-semibold transition">
-    Lihat Grafik
-</a>
+
 
 
                 @foreach ($menuItems as $item)
